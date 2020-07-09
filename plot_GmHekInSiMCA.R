@@ -164,7 +164,7 @@ for (data_name in c('GMvsHL','InSilico','tissue1_forebrain','tissue2_forebrain',
 
     if (DRmethod=="RA3"){
       DRdim <- ourDRdim
-      if ((multi_donor == T) & (data_name %in% c('ALL_blood','MPP_CMP_CLP','MPP_LMPP_CLP'))){
+      if ((multi_donor == T) & (data_name %in% c('ALL_blood','MPP_LMPP_CLP'))){
         file_name <- sprintf('%s_%s_peak%03d_dim%s_multidonor',DRmethod,data_name,peakR*100,DRdim)
       }else{
         file_name <- sprintf('%s_%s_peak%03d_dim%s',DRmethod,data_name,peakR*100,DRdim)

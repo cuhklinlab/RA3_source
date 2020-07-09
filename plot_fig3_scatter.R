@@ -18,7 +18,6 @@ theme_set(theme_gray() +
               axis.title = element_text(size=18)
             )
 )
-all_methods <- c("Cicero","SCALE","Cusanovich2018","Scasat","scABC","SnapATAC","cisTopic","RA3")
 
 
 plot_scatter <- function(dims.reduce, cell.labels, data_type='NULL', cell.colors=NULL, donor.labels=NULL, multi_donor=F, perplexity=30,DRmethod,data_name){
@@ -159,7 +158,7 @@ for (data_name in c('MPP_LMPP_CLP','donor_BM0828','ALL_blood','forebrain_half','
 
     if (DRmethod=="RA3"){
       DRdim <- ourDRdim
-      if ((multi_donor == T) & (data_name %in% c('ALL_blood','MPP_CMP_CLP','MPP_LMPP_CLP','all_forebrain','all_forebrain_RmEx'))){
+      if ((multi_donor == T) & (data_name %in% c('ALL_blood','MPP_LMPP_CLP'))){
         file_name <- sprintf('%s_%s_peak%03d_dim%s_multidonor',DRmethod,data_name,peakR*100,DRdim)
       }else{
         file_name <- sprintf('%s_%s_peak%03d_dim%s',DRmethod,data_name,peakR*100,DRdim)
