@@ -19,18 +19,36 @@ We also provide a [R-based implementation](https://github.com/cuhklinlab/RA3) fo
 |`plot_case_pbmc.R`|Fig. 2d and Supplementary Fig. 2cg|
 |`plot_fig3_scatter.R`|Fig. 3|
 |`run_clustering_RA3.py`|clustering of RA3|
-|`plot_fig3-2_AMI_bar.R`|Fig. 4a and Supplementary Fig. 4a|
-|`plot_fig4_AMI_line.R`|Fig. 4b and Supplementary Fig. 4b|
+|`plot_fig3-2_AMI_bar.R`|Fig. 4a and Supplementary Fig. 6a|
+|`plot_fig4_AMI_line.R`|Fig. 4b and Supplementary Fig. 6b|
 |`plot_bar_ragi.R`|Fig. 4c|
 |`trajectory.R`|trajectory inference, Fig. 5a|
 |`cluster_specific_peak.R`|cluster specific peaks|
 |`chromVAR_motif.R`|motif analysis, Fig. 5b|
 |`plot_corr3.m`|Supplementary Fig. 1a|
-|`plot_umap.R`|Supplementary Fig. 3|
-|`plot_GmHekInSiMCA.R`|Supplementary Fig. 5|
-|`plot_dropout_cell_sum.R`|Supplementary Fig. 6|
-|`plot_case_pbmc_all_other.R`|Supplementary Fig. 7|
-|`plot_supp_diff_dim.R`|Supplementary Fig. 8|
+|`plot_scatter_prop.R`|Supplementary Fig. 3|
+|`plot_bar_prop.R`|Supplementary Fig. 3|
+|`plot_LOpeak.R`|Supplementary Fig. 4|
+|`call_peak_iter`|pipeline for iterative peak calling|
+|`plot_umap.R`|Supplementary Fig. 5|
+|`plot_GmHekInSiMCA.R`|Supplementary Fig. 7|
+|`plot_dropout_cell_sum.R`|Supplementary Fig. 8|
+|`plot_case_pbmc_all_other.R`|Supplementary Fig. 9|
+|`plot_clusterTable.py`|Supplementary Fig. 10|
+|`plot_time_bar.R`|Supplementary Fig. 11|
+|`plot_tfidf_scatter.R`|Supplementary Fig. 12|
+|`plot_tfidf_bar.R`|Supplementary Fig. 12|
+|`plot_scatter_tau0.R`|Supplementary Fig. 13|
+|`plot_scatter_tau1.R`|Supplementary Fig. 13|
+|`plot_scatter_theta.R`|Supplementary Fig. 13|
+|`plot_scatter_K2.R`|Supplementary Fig. 13|
+|`plot_scatter_K3.R`|Supplementary Fig. 13|
+|`plot_scatter_tau0_LObulk.R`|Supplementary Fig. 14|
+|`plot_scatter_tau1_LObulk.R`|Supplementary Fig. 14|
+|`plot_scatter_theta_LObulk.R`|Supplementary Fig. 14|
+|`plot_scatter_K2_LObulk.R`|Supplementary Fig. 14|
+|`plot_scatter_K3_LObulk.R`|Supplementary Fig. 14|
+|`plot_scatter_refPC.R`|Supplementary Fig. 15|
 
 # License
 This project is built under license **GNU GENERAL PUBLIC LICENSE (GPL)**.
