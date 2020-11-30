@@ -1,7 +1,6 @@
 function [W_o,H_o,Gamma_o,lgp_o,A_o,Beta_o,sigma_s_o] = RA3_func(donor_label,cell_label,Y,theta,tau,tau0,tau1,K1,K2,K3,Gamma,A,W,V,sigma_s,H,X,Beta,res_path,set_sparse,fix_A)
 % profile on;
 
-% tic;
 fid = fopen(sprintf('%s/res.txt',res_path),'wt');
 MAXIte = 1000;
 [p,n] = size(Y);
@@ -20,37 +19,40 @@ cont = zeros(1,n); % contribution of each sample for logp
 
 phi_gamma_0 = tau0^-2;
 phi_gamma_1 = tau1^-2;
+
+% H, W, sigma, logp
+norm_Y = norm(Y, 'fro')^2;
+XX = X *X';
+YX = Y * X';
 for ite = 2:MAXIte
-    
+
 %% Update H
-    E_h  = zeros(K,n);
+    E_h  = zeros(K,n); % Initialize out of for loop
     E_hh = zeros(K,K,n);
     W_s = 1/sigma_s * W' * W;
     D = (ones(K,n) - Gamma) * tau0^2 + Gamma * tau1^2;
     D(1:K1,:) = tau^2 * ones(K1,n);
     D(K1+K2+1:K,:) = tau^2 * ones(K3,n);
+    TMP = (Y' *W)  -X'* (Beta' * W); %N BY K
+
     for j = 1:n
         D_j = D(:,j);
 
         SIGMA_h_inv = W_s + diag(D_j.^(-1)); % K*K
         SIGMA_h = (SIGMA_h_inv)^(-1); % K*K
-        MU_h = 1/sigma_s *(Y(:,j)-Beta*X(:,j))' * W * SIGMA_h; % 1*K
+        MU_h = 1/sigma_s *TMP(j,:) * SIGMA_h; % 1*K
         E_h(:,j) = MU_h'; % K*1
         E_hh(:,:,j)  = E_h(:,j) * E_h(:,j)' + SIGMA_h; % K*K
     end
-
-    
-%     log_Q1 = Q_func(Y,Beta,X,W,E_h,E_hh,n,p,sigma_s,K1,K2,K3,K,Gamma,tau0,tau1,A,V,theta);
-    
+    clear TMP
+        
 %% Update W
-%     W = ((Y-Beta*X) * E_h' + sigma_s * V * A) / (sum(E_hh,3) + sigma_s * A);
-    W(:,K1+1 : K) = ((Y-Beta*X-V(:,1:K1)*E_h(1:K1,:)) * E_h(K1+1 : K,:)' + sigma_s * V(:,K1+1 : K) * A) / (sum(E_hh(K1+1 : K, K1+1 : K,:),3) + sigma_s * A);
-
+W(:,K1+1 : K) = (Y * E_h(K1+1 : K,:)' -Beta * (X* E_h(K1+1 : K,:)')  - V(:,1:K1)*(E_h(1:K1,:) * E_h(K1+1 : K,:)') + sigma_s * V(:,K1+1 : K) * A) / (sum(E_hh(K1+1 : K, K1+1 : K,:),3) + sigma_s * A);
+    
 %% Update Beta
-    Beta  = (Y-W*E_h) * X' / (X*X');    
+    Beta  = (YX-W*(E_h * X')) / XX;    
 
 %% Update A
-
     if(fix_A == false)
         A_new = diag(A);
         for k = 1 : K2+K3
@@ -75,43 +77,43 @@ for ite = 2:MAXIte
             end
         end
         Gamma = Gamma_new;
-        % disp(sprintf('\t\tsum_Gamma: %s\tmean_Gamma: %s', num2str(sum(Gamma,'all')), num2str(mean(Gamma,'all')) ));
     end
+
     
 %% Update sigma_square
-    sigma_s = 0;
     W_tmp = W' * W;
-    TMP = (Y - Beta*X); % try
-    Mu_tmp = W' * TMP; % try
-    for j = 1:n
-        sigma_s = sigma_s + TMP(:,j)' * TMP(:,j) - 2*Mu_tmp(:,j)'*E_h(:,j) + trace(E_hh(:,:,j)*W_tmp);
-    end
+    Mu_tmp = W' * Y - (W' *Beta)*X; % k by n
+    E_hh_mat = reshape(E_hh,[K*K,n]);
+    W_tmp_mat = reshape(W_tmp', [K*K,1]); 
+    sigma_s = (norm_Y+ trace((Beta' * Beta) * XX) - 2 * trace(X*Y'*Beta)) - trace( 2*   E_h * Mu_tmp') + sum(W_tmp_mat' * E_hh_mat);
     sigma_s = sigma_s / (p*n); 
-    % log_Q2 = Q_func(Y,Beta,X,W,E_h,E_hh,n,p,sigma_s,K1,K2,K3,K,Gamma,tau0,tau1,A,V,theta);
-    
     
 %% Calculate log_p
+    TMP2 = W(:,K1+1 : K)-V(:,K1+1 : K)  ;
+    Qw(ite) = - (K2+K3) * p/2 * log(2*pi) + p/2 * sum(log(A_new))  - 1/2*trace(A*(TMP2'*TMP2));
+    clear TMP2
 
-    Qw(ite) = - (K2+K3) * p/2 * log(2*pi) + p/2 * trace(log(A)) - 1/2*trace(A*(W(:,K1+1 : K)-V(:,K1+1 : K))'*(W(:,K1+1 : K)-V(:,K1+1 : K)));
     Qgamma(ite) = sum(sum(Gamma(K1+1:K1+K2,:)*log(theta) + (ones(K2,n) - Gamma(K1+1:K1+K2,:))*log(1-theta)));
+
     log_tmp = - n * p/2 * log(2*pi*sigma_s);
     W_s = 1/sigma_s * W_tmp;
-    D = (ones(K,n) - Gamma) * tau0^2 + Gamma * tau1^2;
+    D = (ones(K,n) - Gamma) * tau0^2 + Gamma * tau1^2; % k by n
     D(1:K1,:) = tau * ones(K1,n);
-    D(K1+K2+1:K,:) = tau * ones(K3,n);
-        
+    D(K1+K2+1:K,:) = tau * ones(K3,n);  
     for j = 1:n
-        D_j = D(:,j);
+      
+        D_j = D(:,j); % k by 1
         Sigma_j_inv = W_s + diag(D_j.^(-1));
-        Sigma_j = (Sigma_j_inv)^(-1);
-        Mu_j = 1/sigma_s *  Sigma_j* Mu_tmp(:,j);       
-        cont(j) = - 1/2*log(prod(D_j)) - 1/2*(1/sigma_s * TMP(:,j)' * TMP(:,j) ) + 1/2*log(det(Sigma_j)) + 1/2*Mu_j'* Sigma_j^(-1)*Mu_j; % 2nd
-        log_tmp = log_tmp + cont(j);
+%         Sigma_j = (Sigma_j_inv)^(-1); % k by k
+%         Mu_j = 1/sigma_s * Sigma_j* Mu_tmp(:,j); % k by 1       
+        cont(j) = - 1/2*log(prod(D_j)) - 1/2*log(det(Sigma_j_inv)) + 1/(2*sigma_s^2 )*Mu_tmp(:,j)'/Sigma_j_inv* Mu_tmp(:,j); 
     end
+    Qh(ite) =log_tmp+ sum(cont)- 1/(2*sigma_s) * (norm_Y + trace((Beta' * Beta) * XX) - 2 * trace(X*(Y'*Beta)));
     
-    Qh(ite) = log_tmp;
-    log_p(ite) = log_tmp + Qw(ite) + Qgamma(ite);
-    
+    log_p(ite) = Qh(ite) + Qw(ite) + Qgamma(ite);
+       
+
+
     if(log_p(ite) > log_p(ite-1))
         H_o = E_h;
         W_o = W;
@@ -134,9 +136,13 @@ for ite = 2:MAXIte
 end
 fprintf(fid, '\nSetting\nN: %d\tP: %d\tK: %d\tTime: %0.1fs\tmax_log_p: %s\n',n,p,K,toc,num2str(max(log_p))  );
 
+
+
+
 scale_W = sqrt(diag(W_o' * W_o))'; 
 % size(scale_W)% 1 by K
 W_o = W_o ./ scale_W;
 H_o = H_o .* scale_W';
+
 
 end
