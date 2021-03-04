@@ -1,4 +1,6 @@
 # The source code of RA3
+[![DOI](https://zenodo.org/badge/278107548.svg)](https://zenodo.org/badge/latestdoi/278107548)
+
 The source code for the reproduction of results in "A reference-guided approach for epigenetic characterization of single cells". <br/>
 We also provide a [R-based implementation](https://github.com/cuhklinlab/RA3) for the convenience of the community.
 
